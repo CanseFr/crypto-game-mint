@@ -352,7 +352,7 @@ toolsBox = {
 const API_BASE = window.location.origin;
 
 
-async function isTopScore(currentScore){
+/*async function isTopScore(currentScore){
   try {
     const res = await fetch(`${API_BASE}/api/scores`, { method: "GET" });
     if (!res.ok) return false;
@@ -374,7 +374,7 @@ async function isTopScore(currentScore){
     console.error("isTopScore() failed", e);
     return false;
   }
-}
+}*/
 
 function shortAddr(addr){
   return addr ? addr.slice(0,6) + "..." + addr.slice(-4) : "";
@@ -385,7 +385,6 @@ async function claimReward(points){
     throw new Error("MetaMask not available");
   }
 
-  // Récupère l'adresse du joueur
   let recipient = auth && auth.address ? auth.address : null;
   if (!recipient) {
     const accounts = await window.ethereum.request({ method: 'eth_accounts' });
@@ -401,9 +400,29 @@ async function claimReward(points){
     console.log("---------------------")
 
   // TODO: Remplacer ce placeholder par TON appel ABI:
-  // const provider = new ethers.providers.Web3Provider(window.ethereum);
-  // const signer = provider.getSigner();
-  // const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+  const provider = new ethers.BrowserProvider(window.ethereum);
+  const signer = await provider.getSigner();
+  const address = await signer.getAddress();
+
+  console.log("Using address:", address);
+
+  const ERC20_ABI = [
+    "function balanceOf(address owner) view returns (uint256)",
+    "function decimals() view returns (uint8)",
+    "function mint(address to, uint256 amount)"
+  ];
+
+  const contract = new ethers.Contract("0x66fb17989373fd4fe4c3cfecd905be272894ce25", 
+  ERC20_ABI, signer);
+
+  console.log("Contract connected:", contract);
+
+  console.log("recipient: " + recipient)
+  console.log("points: " + points)
+
+  const amount = ethers.parseUnits(points.toString(), 18); 
+  const rewardAmount = await contract.mint(recipient, amount);
+  console.log("Reward transaction sent:", rewardAmount);
   // const tx = await contract.claim(points, recipient); // selon ton contrat
   // await tx.wait();
 
@@ -457,9 +476,9 @@ async function endGameRewardFlow(){
   }
 
   const score = gameEngine.score;
-  const top1  = await isTopScore(score);
+  //const top1  = await isTopScore(score);
 
-  if (top1) {
+  //if (top1) {
     mustClaimBeforeSubmit = true;
 
     // Thème VERT = victoire
@@ -494,11 +513,11 @@ async function endGameRewardFlow(){
         }
       };
     }
-  } else {
+  /*} else {
     // Pas top1 → thème rouge classique + submit actif
     setLoseScreenTheme(false);
     $('#sbmt-score').attr('disabled', false).addClass('btn-blue');
-  }
+  }*/
 }
 
 
