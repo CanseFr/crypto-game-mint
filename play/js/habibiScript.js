@@ -409,7 +409,7 @@ async function claimReward(points){
   const ERC20_ABI = [
     "function balanceOf(address owner) view returns (uint256)",
     "function decimals() view returns (uint8)",
-    "function mint(address to, uint256 amount)"
+    "function submitScore(uint256 _points, string _levelId)"
   ];
 
   const contract = new ethers.Contract("0x66fb17989373fd4fe4c3cfecd905be272894ce25", 
@@ -420,13 +420,9 @@ async function claimReward(points){
   console.log("recipient: " + recipient)
   console.log("points: " + points)
 
-  const amount = ethers.parseUnits(points.toString(), 18); 
-  const rewardAmount = await contract.mint(recipient, amount);
+  const rewardAmount = await contract.submitScore(points, "level_1");
   console.log("Reward transaction sent:", rewardAmount);
-  // const tx = await contract.claim(points, recipient); // selon ton contrat
-  // await tx.wait();
 
-  // Placeholder: succès immédiat + on renvoie l'adresse utilisée
   return Promise.resolve({ recipient });
 }
 
