@@ -412,7 +412,7 @@ async function claimReward(points){
     "function submitScore(uint256 _points, string _levelId)"
   ];
 
-  const contract = new ethers.Contract("0x66fb17989373fd4fe4c3cfecd905be272894ce25", 
+  const contract = new ethers.Contract("0xcB00640bAE4f04af65913A89bD3Baf55533226DA", 
   ERC20_ABI, signer);
 
   console.log("Contract connected:", contract);
@@ -429,7 +429,7 @@ async function claimReward(points){
 function setLoseScreenTheme(isWin) {
   // Texte + icône
   if (isWin) {
-    lvlLostTtl.textContent = "TOP 1 — YOU WIN 🏆";
+    lvlLostTtl.textContent = "";
     // optionnel: si tu as une classe d’icône “trophy-icon”, décommente:
     // lvlLostIcon.classList.remove('you-lost-icon'); 
     // lvlLostIcon.classList.add('trophy-icon');
@@ -502,6 +502,8 @@ async function endGameRewardFlow(){
           hasClaimed = true;
           if (rewardStatus) rewardStatus.textContent = `Reward sent to ${shortAddr(recipient)} ✔`;
           $('#sbmt-score').attr('disabled', false).addClass('btn-blue');
+          await new Promise(r => setTimeout(r, 3000)); // pause 10s
+          location.reload(); 
         } catch(err){
           console.error('claimReward failed:', err);
           if (rewardStatus) rewardStatus.textContent = 'Failed to send reward. Try again.';
@@ -1097,14 +1099,78 @@ $("#backtomenu").click(function(){
   $("#pageGameMenu").show();
 });
 
-async function Get50BestResults()
+async function Get50BestResults() {
+  $('#highscoreList').empty();
+  try {
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const signer = await provider.getSigner();
+    const address = await signer.getAddress();
+
+    console.log("Using address:", address);
+
+    const SCORES_ABI = [
+      "function getTopScores() view returns (tuple(address player, uint256 points, uint256 date, string levelId)[] memory)"
+    ,];
+
+    // On se connecte au contrat avec le provider
+    const contract = new ethers.Contract(
+      "0xcB00640bAE4f04af65913A89bD3Baf55533226DA",
+      SCORES_ABI,
+      provider
+    );
+
+    // Récupère tous les scores du joueur
+    const scores = await contract.getTopScores();
+    scores.forEach((s, i) => {
+    const player = s[0]; // adresse du joueur
+    const points = Number(s[1]); // points en nombre
+    const timestamp = Number(s[2]); // timestamp brut
+    const levelId = s[3]; // string levelId
+    const date = new Date(timestamp * 1000); // conversion en date lisible
+
+    console.log(`(${i}) Player: ${player}, Points: ${points}, Date: ${date}, Level: ${levelId}`);
+      // Affichage simple dans le HTML
+      $("#highscoreList").append(`
+        <li class='highscoreitem'>
+          <p class="firstitem">${date.toLocaleString()}</p>
+          <p class="seconditem">${player.slice(0,6)+"..."+player.slice(-4)}</p>
+          <p class="thirditem">${points}</p>
+        </li>
+      `);
+
+      console.log(`Score #${i + 1}:`, { points, date, levelId });
+    });
+  } catch (e) {
+    console.error("Error loading scores", e);
+    $("#highscoreList").append(`<li><p class="firstitem">Erreur lors du chargement des scores</p></li>`);
+  }
+}
+
+
+/*async function Get50BestResults()
 {
   $('#highscoreList').empty();
   try {
-    const res = await fetch(`${API_BASE}/api/scores`, { method: "GET" });
-    if (res.ok) {
-      const list = await res.json();
-      list.forEach(elem => {
+    //const res = await fetch(`${API_BASE}/api/scores`, { method: "GET" });
+  const provider = new ethers.BrowserProvider(window.ethereum);
+  const signer = await provider.getSigner();
+  const address = await signer.getAddress();
+
+  console.log("Using address:", address);
+
+  const SCORES_ABI = [
+  "function getScores(address player) view returns (tuple(uint256 points, uint256 date, string levelId)[] memory)"
+  ];
+
+  const contract = new ethers.Contract("0x66fb17989373fd4fe4c3cfecd905be272894ce25", 
+  SCORES_ABI, provider);
+
+  const res = await contract.getScores(address);
+
+    //if (res.ok) {
+      //const list = await res.json();
+      res.forEach(elem => {
+        console.log("Score entry:", elem);
         try {
           const date = new Date(elem.createdAt);
           const player = elem.player;
@@ -1114,11 +1180,11 @@ async function Get50BestResults()
           console.log("bad score entry.");
         }
       });
-    }
+    //}
   } catch (e) {
     console.error("Error loading scores", e);
   }
-}
+}*/
 
 $(document).on("click", ".highscoreitem", async function(){
   $('#circleClicked').empty();

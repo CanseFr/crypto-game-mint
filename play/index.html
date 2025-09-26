@@ -195,8 +195,6 @@
 			<div class="fixed-75w-wrapper">
 				<div class="info-screen-title-cont">
 					<div class="info-screen-icon you-lost-icon"></div>
-					<div class="info-screen-ttl-txt-bld">Game Over</div>
-					<div >You Lost</div>
 				</div>
 				<div class="info-screen-txt-cont">
 					<div class="info-screen-body-txt-reg">Score</div>
@@ -283,18 +281,17 @@
 			<div class="fixed-75w-wrapper">
 				<div class="info-screen-title-cont">
 					<div id="lvlLostIcon" class="info-screen-icon you-lost-icon"></div>
-					<div class="info-screen-ttl-txt-bld">Game Over</div>
-					<div id="lvlLostTtl" >You Lost</div>
+					<div class="info-screen-ttl-txt-bld"></div>
+					<div id="lvlLostTtl" ></div>
 				</div>
 				<!-- Récompense si top 1 (nouveau) -->
 <div id="rewardSection" class="submit-info" style="display:none; margin-top:10px;">
   <div id="rewardInfo" style="margin-bottom:8px;">
-    You won <span id="rewardPoints"></span> points.
+    You won <span id="rewardPoints"></span> coins.
   </div>
   <button id="claim-reward-btn" class="gm-btn btn-blue" type="button">Send reward to wallet</button>
   <div id="rewardStatus" class="gm-menu-subtitle" style="margin-top:8px;"></div>
 </div>
-
 				<div class="info-screen-txt-cont">
 					<div class="info-screen-body-txt-reg">Score</div>
 					<div id="lvlLostScore" class="lvl-fnshd-score-nmb"><span id="game-over-score" value="0"></span></div>
@@ -303,14 +300,6 @@
 					<div class="sbmt-tryagain-txt">Try again?</div>
 					<div id="lvlLostTryAgainBtn" class="tpbl-circle c-white submit-circle"></div>
 				</div>
-				<div class="info-screen-title-cont">
-					<div class="submit-info">
-						<span>Name: </span>
-						<input type="text" id="name" class="playerName" autofocus="autofocus"/>
-					</div>
-					<div class="submit-info">
-						<button id="sbmt-score" class="gm-btn btn-blue" type="button" name="button">Submit score</button>
-					</div>
 				</div>
 			</div>
 		</div>
