@@ -8,7 +8,11 @@ var adminCPItems = document.querySelector('.admin-cp-items');
 var adminCPBtn = document.querySelector('.admin-cp-button');
 adminCPBtn.addEventListener('click', function(){ adminCPItems.classList.toggle('hidden'); }, false);
 
-
+async function loadConfig() {
+  const response = await fetch('/appsettings.json'); 
+  const config = await response.json();
+  return config;
+}
 
 // ---------------------- Pages ---------------------- //
 
@@ -351,31 +355,6 @@ toolsBox = {
 
 const API_BASE = window.location.origin;
 
-
-/*async function isTopScore(currentScore){
-  try {
-    const res = await fetch(`${API_BASE}/api/scores`, { method: "GET" });
-    if (!res.ok) return false;
-
-    const list = await res.json();
-    if (!Array.isArray(list) || list.length === 0) {
-      // Aucun score existant → tu es forcément top1
-      return true;
-    }
-
-    // Cherche le max des scores existants
-    let max = -Infinity;
-    for (const s of list) {
-      if (typeof s.score === "number" && s.score > max) max = s.score;
-    }
-    // Si ton score >= meilleur score actuel → gagnant
-    return currentScore >= max;
-  } catch(e){
-    console.error("isTopScore() failed", e);
-    return false;
-  }
-}*/
-
 function shortAddr(addr){
   return addr ? addr.slice(0,6) + "..." + addr.slice(-4) : "";
 }
@@ -412,7 +391,9 @@ async function claimReward(points){
     "function submitScore(uint256 _points, string _levelId)"
   ];
 
-  const contract = new ethers.Contract("0xcB00640bAE4f04af65913A89bD3Baf55533226DA", 
+  var contractAdress = await loadConfig();
+
+  const contract = new ethers.Contract(contractAdress.Contract.Address, 
   ERC20_ABI, signer);
 
   console.log("Contract connected:", contract);
@@ -1112,9 +1093,11 @@ async function Get50BestResults() {
       "function getTopScores() view returns (tuple(address player, uint256 points, uint256 date, string levelId)[] memory)"
     ,];
 
+    var contractAdress = await loadConfig();
+
     // On se connecte au contrat avec le provider
     const contract = new ethers.Contract(
-      "0xcB00640bAE4f04af65913A89bD3Baf55533226DA",
+      contractAdress.Contract.Address,
       SCORES_ABI,
       provider
     );
